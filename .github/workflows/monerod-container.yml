@@ -1,0 +1,59 @@
+name: Build Monerod Container Image
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'monerod-container/**'
+      - '.github/workflows/monerod-container.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest 
+    defaults:
+      run:
+        shell: bash
+        working-directory: monerod-container
+    steps:
+      - name: "Retrieve Latest Monero Release Tag"
+        id: monero
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          owner: monero-project
+          repo: monero
+          excludes: prelease, draft
+      - uses: actions/checkout@v2
+      - name: "Retrieve Monero Hashes File"
+        run: |
+          curl -s https://www.get.monero.org/downloads/hashes.txt -o "$HASHES_FILE"
+        env:
+          HASHES_FILE: "hashes.${{ steps.monero.outputs.release }}.txt"
+      - name: "Import binaryfate's GPG"
+        run: |
+          curl -s "$GPG_URL" | gpg --import
+        env:
+          GPG_URL: "https://raw.githubusercontent.com/monero-project/monero/${{ steps.monero.outputs.release }}/utils/gpg_keys/binaryfate.asc"
+      - name: "Verify GPG Signature of Hashes File"
+        run: |
+          gpg --verify "$HASHES_FILE"
+        env:
+          HASHES_FILE: "hashes.${{ steps.monero.outputs.release }}.txt"
+      - name: "Retrieve Monero Release Archive"
+        run: |
+          curl -s "$ARCHIVE_URL" -o "$ARCHIVE_FILENAME"
+        env:
+          ARCHIVE_URL: "https://downloads.getmonero.org/cli/monero-linux-x64-${{ steps.monero.outputs.release }}.tar.bz2"
+          ARCHIVE_FILENAME: "monero-linux-x64-${{ steps.monero.outputs.release }}.tar.bz2"
+      - name: "Verify Monero Release Archive Hash"
+        run: |
+          grep -q "$(sha256sum "$ARCHIVE_FILENAME" | cut -c 1-64 )" "$ARCHIVE_FILENAME"
+        env:
+          ARCHIVE_FILENAME: "monero-linux-x64-${{ steps.monero.outputs.release }}.tar.bz2"
+      - name: "Extract Monero Release Archive"
+        run: |
+          mkdir monerod
+          tar -jxf "$ARCHIVE_FILENAME" -C monerod/ --strip-components=1
+        env:
+          ARCHIVE_FILENAME: "monero-linux-x64-${{ steps.monero.outputs.release }}.tar.bz2"
