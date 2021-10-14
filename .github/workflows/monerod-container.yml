@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: "Retrieve Monero Hashes File"
         run: |
-          curl -s https://www.get.monero.org/downloads/hashes.txt -o "$HASHES_FILE"
+          curl -s https://www.getmonero.org/downloads/hashes.txt -o "$HASHES_FILE"
         env:
           HASHES_FILE: "hashes.${{ steps.monero.outputs.release }}.txt"
       - name: "Import binaryfate's GPG"
