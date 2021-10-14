@@ -52,10 +52,10 @@ jobs:
           sha256sum "$ARCHIVE_FILENAME"
           export sha256_hash=$(sha256sum "$ARCHIVE_FILENAME" | cut -c 1-64)
           echo $sha256_hash
-          cat "$ARCHIVE_FILENAME"
-          grep "$sha256_hash" "$ARCHIVE_FILENAME"
+          grep "$(sha256sum "$ARCHIVE_FILENAME" | cut -c 1-64)" "$HASHES_FILE"
         env:
           ARCHIVE_FILENAME: "monero-linux-x64-${{ steps.monero.outputs.release }}.tar.bz2"
+          HASHES_FILE: "hashes.${{ steps.monero.outputs.release }}.txt"
       - name: "Extract Monero Release Archive"
         run: |
           mkdir monerod
