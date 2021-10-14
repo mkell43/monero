@@ -48,7 +48,7 @@ jobs:
           ARCHIVE_FILENAME: "monero-linux-x64-${{ steps.monero.outputs.release }}.tar.bz2"
       - name: "Verify Monero Release Archive Hash"
         run: |
-          grep -q "$(sha256sum "$ARCHIVE_FILENAME" | cut -c 1-64 )" "$ARCHIVE_FILENAME"
+          grep "$(sha256sum "$ARCHIVE_FILENAME" | cut -c 1-64 )" "$ARCHIVE_FILENAME"
         env:
           ARCHIVE_FILENAME: "monero-linux-x64-${{ steps.monero.outputs.release }}.tar.bz2"
       - name: "Extract Monero Release Archive"
