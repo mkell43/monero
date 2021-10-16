@@ -63,7 +63,7 @@ jobs:
       - name: "Authenticate Docker to Github Package Repository"
         uses: docker/login-action@v1.1.0
         with:
-          registry: ghcr.com
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: "Build & Push Container Image"
