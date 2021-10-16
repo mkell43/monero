@@ -68,7 +68,7 @@ jobs:
       - name: "Build & Push Container Image"
         uses: docker/build-push-action@v2.7.0
         with:
-          context: .
+          context: ./monerod-container
           push: true
           tags: ${{ github.repository }}:${{ steps.monero.outputs.release }}
         
