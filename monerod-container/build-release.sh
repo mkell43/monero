@@ -22,6 +22,5 @@ mkdir monerod
 tar -jxf "$monero_bundle" -C monerod/ --strip-components=1
 docker build . -t "$docker_tag"
 docker push "$docker_tag"
-# Use a mask in Github Actions
-# https://www.tutorialworks.com/github-actions-mask-url/
+# Pass is broken right now. What's below doesn't work.
 echo -n "$(pass monero_project/cosign_pass)" | cosign sign --key ../cosign.key "$docker_tag"
