@@ -75,6 +75,8 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/mkell43/monerod:buildcache
           cache-to: type=registry,ref=ghcr.io/mkell43/monerod:buildcache,mode=max
           labels: org.opencontainers.image.source https://github.com/${{ github.repository }}
+          # labels: |
+          #   org.opencontainers.image.source=https://github.com/${{ github.repository }}
       - name: "Dump Cosign Key To File"
         run: |
           echo "$COSIGN_KEY" > /tmp/cosign.key
