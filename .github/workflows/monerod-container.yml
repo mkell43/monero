@@ -70,4 +70,14 @@ jobs:
           context: ./monerod-container
           push: true
           tags: ghcr.io/mkell43/monerod:${{ steps.monero.outputs.release }}
-        
+      - name: "Dump Cosign Key To File"
+        run: |
+          echo "$COSIGN_KEY" > /tmp/cosign.key
+        env:
+          COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
+      - name: "Install Cosign"
+        uses: sigstore/cosign-installer@main
+      - name: "Sign The Image"
+        run: |
+          echo -n "::add-mask::${{ secrets.COSIGN_PASS }}" | \
+            cosign sign --key /tmp/cosign.key ghcr.io/mkell43/monerod:${{ steps.monero.outputs.release }}
