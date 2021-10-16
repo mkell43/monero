@@ -24,4 +24,4 @@ docker build . -t "$docker_tag"
 docker push "$docker_tag"
 # Use a mask in Github Actions
 # https://www.tutorialworks.com/github-actions-mask-url/
-echo -n "$(pass monero_project/cosign_key)" | cosign sign --key ../cosign.key "$docker_tag"
+echo -n "$(pass monero_project/cosign_pass)" | cosign sign --key ../cosign.key "$docker_tag"

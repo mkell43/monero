@@ -79,5 +79,5 @@ jobs:
         uses: sigstore/cosign-installer@main
       - name: "Sign The Image"
         run: |
-          echo -n "::add-mask::${{ secrets.COSIGN_PASS }}" | \
+          echo -n "${{ secrets.COSIGN_PASS }}" | \
             cosign sign --key /tmp/cosign.key ghcr.io/mkell43/monerod:${{ steps.monero.outputs.release }}
