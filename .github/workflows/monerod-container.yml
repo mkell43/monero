@@ -71,5 +71,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: $GITHUB_REPOSITORY:${{ steps.monero.outputs.release }}
+          tags: ${{ github.repository }}:${{ steps.monero.outputs.release }}
         
