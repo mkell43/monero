@@ -70,5 +70,5 @@ jobs:
         with:
           context: ./monerod-container
           push: true
-          tags: ${{ github.repository }}:${{ steps.monero.outputs.release }}
+          tags: ghcr.io/${{ github.repository }}:${{ steps.monero.outputs.release }}
         
