@@ -1,4 +1,7 @@
 FROM ubuntu:20.04
+LABEL org.opencontainers.image.authors "mike.k@blu-web.com"
+LABEL org.opencontainers.image.url "https://github.com/mkell43/monero/monerod-container/"
+LABEL org.opencontainers.image.source "https://github.com/mkell43/monero"
 
 LABEL org.opencontainers.image.title "monerod"
 LABEL org.opencontainers.image.description "A simple monerod container."
