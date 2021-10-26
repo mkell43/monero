@@ -58,6 +58,20 @@ jobs:
           tar -jxf "$ARCHIVE_FILENAME" -C monerod/ --strip-components=1
         env:
           ARCHIVE_FILENAME: "monero-linux-x64-${{ steps.monero.outputs.release }}.tar.bz2"
+      - name: Get Timestamp
+        id: timestampz
+        run: echo "::set-output timestampz=$(TZ='UTC' date +'%Y-%m-%dT%H:%M:%SZ')"
+      - name: Set Container Metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ghcr.io/mkell43/monerod
+          tags: |
+            type=raw,value=${{ steps.monero.outputs.release }}
+            type=raw,value=${{ steps.timestampz.outputs.timestampz }}
+          labels: |
+            org.opencontainers.image.created ${{ steps.timestampz.outputs.timestampz }}
+            org.opencontainers.image.version ${{ steps.monero.outputs.release }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: "Authenticate Docker to Github Package Repository"
@@ -71,7 +85,8 @@ jobs:
         with:
           context: ./monerod-container
           push: true
-          tags: ghcr.io/mkell43/monerod:${{ steps.monero.outputs.release }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=ghcr.io/mkell43/monerod:buildcache
           cache-to: type=registry,ref=ghcr.io/mkell43/monerod:buildcache,mode=max
       - name: "Dump Cosign Key To File"
@@ -80,7 +95,7 @@ jobs:
         env:
           COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
       - name: "Install Cosign"
-        uses: sigstore/cosign-installer@main
+        uses: sigstore/cosign-installer@v1.2.0
       - name: "Sign The Image"
         run: |
           echo -n "${{ secrets.COSIGN_PASS }}" | \
