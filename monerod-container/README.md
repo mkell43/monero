@@ -1,3 +1,22 @@
 # monerod-docker
 
 This is a customized monerod container image.
+
+## Usage
+
+I use the `latest` tag in the examples below, which is fine, but I recommend running a specific version like `ghcr.io/mkell43/monerod:v0.17.2.3`. The version tag reflects the version of `monero` used while building the container image.
+
+If you're using something like [`containrrr/watchtower`](https://github.com/containrrr/watchtower/) then you'll want to ignore my recommendation and use the `latest` tag. Or you know, just live your best life and do what you want.
+
+### 1. Pull the Image
+
+| Maybe I'm dumb (spoiler: I am), but I've been unable to get it to run only doing a `docker run` with an image that's hosted in `ghcr.io`. |
+| ----------------------------------------------------------------------------------------------------------------------------------------- |
+
+- `docker pull ghcr.io/mkell43/monerod:latest`
+
+### 2. Start the Container
+
+- `docker run -d --restart unless-stopped monerod -v bitmonero:/home/monerod ghcr.io/mkell43/monerod:latest --rpc-restricted-bind-ip=0.0.0.0 --rpc-restricted-bind-port=18081 --no-igd --no-zmq --enable-dns-blocklist`
+
+Above, I'm passing a number of arguments without any explanation. If you don't know what they are or what they do, you should totally check out the great documentation at the appropriately named [Monero Docs](https://monerodocs.org/interacting/monerod-reference/) site. **Pleas don't run things all willy nilly without knowing what you're telling it to do!** _Please._
