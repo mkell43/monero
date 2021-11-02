@@ -67,6 +67,7 @@ jobs:
         with:
           images: ghcr.io/mkell43/monerod
           tags: |
+            type=raw,value=latest
             type=raw,value=${{ steps.monero.outputs.release }}
             type=raw,value=${{ steps.timestampz.outputs.timestampz }}
           labels: |
