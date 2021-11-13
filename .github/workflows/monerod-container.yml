@@ -102,3 +102,22 @@ jobs:
         run: |
           echo -n "${{ secrets.COSIGN_PASS }}" | \
             cosign sign --key /tmp/cosign.key ghcr.io/mkell43/monerod:${{ steps.monero.outputs.release }}
+  scan:
+    needs: build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: monerod-container
+    steps:
+      - name: Scan Image w/ Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ghcr.io/mkell43/monerod:latest'
+          format: 'template'
+          template: '@/contrib/sarif.tpl'
+          output: 'trivy-results.sarif'
+      - name: Upload Trivy Results
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: 'trivy-results.sarif'
