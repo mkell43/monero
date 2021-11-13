@@ -2,6 +2,8 @@
 
 This is a customized monerod container image.
 
+[![Build Monerod Container Image](https://github.com/mkell43/monero/actions/workflows/monerod-container.yml/badge.svg)](https://github.com/mkell43/monero/actions/workflows/monerod-container.yml)
+
 ## Usage
 
 I use the `latest` tag in the examples below, which is fine, but I recommend running a specific version like `ghcr.io/mkell43/monerod:v0.17.2.3`. The version tag reflects the version of `monero` used while building the container image.
@@ -12,6 +14,7 @@ If you're using something like [`containrrr/watchtower`](https://github.com/cont
 
 | This is optional, but _highly encourage_. |
 | ----------------------------------------- |
+
 
 - Install [`cosign`](https://github.com/sigstore/cosign) if you don't already have it.
 - `wget https://raw.githubusercontent.com/mkell43/monero/main/cosign.pub`
