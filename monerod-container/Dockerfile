@@ -14,6 +14,7 @@ LABEL org.opencontainers.image.url "https://github.com/mkell43/monero/tree/main/
 LABEL org.opencontainers.image.source "https://github.com/mkell43/monero"
 LABEL org.opencontainers.image.base.name "registry.hub.docker.com/library/ubuntu:20.04"
 
+# hadolint ignore=DL3008
 RUN set -ex \
   && apt-get update \
   && DEBIAN_FRONTEND=noninteractive \
