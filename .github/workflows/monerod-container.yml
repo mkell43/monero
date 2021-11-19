@@ -11,6 +11,18 @@ on:
       - '.github/workflows/monerod-container.yml'
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: monerod-container
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Lint Dockerfile"
+        id: hadolint
+        uses: hadolint/hadolint-action@v1.6.0
+        with:
+          dockerfile: Dockerfile
   build:
     runs-on: ubuntu-latest 
     defaults:
