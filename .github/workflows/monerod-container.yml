@@ -22,8 +22,9 @@ jobs:
         id: hadolint
         uses: hadolint/hadolint-action@v1.6.0
         with:
-          dockerfile: Dockerfile
+          dockerfile: monerod-container/Dockerfile
   build:
+    needs: lint
     runs-on: ubuntu-latest 
     defaults:
       run:
