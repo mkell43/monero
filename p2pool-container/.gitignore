@@ -1,0 +1,7 @@
+p2pool*.tar.gz
+p2pool*/
+bak/
+tmp/
+release.json
+sha256sums.txt.asc
+TODO
