@@ -23,3 +23,5 @@ grep -iq "$(sha256sum "p2pool-$p2pool_tag-linux-x64.tar.gz" | cut -c 1-64)" "sha
 
 # Extract the release archive.
 tar -xzf "p2pool-$p2pool_tag-linux-x64.tar.gz"
+
+docker build . -t "p2pool:testing"
