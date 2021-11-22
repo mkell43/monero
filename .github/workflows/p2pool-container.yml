@@ -102,11 +102,11 @@ jobs:
           images: ghcr.io/mkell43/p2pool
           tags: |
             type=raw,value=latest
-            type=raw,value=${{ steps.p2pool.outputs.release }}
+            type=raw,value=${{ needs.retrieve-release.outputs.p2pool_release }}
             type=raw,value=${{ steps.timestampz.outputs.timestampz }}
           labels: |
             org.opencontainers.image.created ${{ steps.timestampz.outputs.timestampz }}
-            org.opencontainers.image.version ${{ steps.p2pool.outputs.release }}
+            org.opencontainers.image.version ${{ needs.retrieve-release.outputs.p2pool_release }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: "Authenticate Docker to Github Package Repository"
@@ -194,11 +194,11 @@ jobs:
           images: ghcr.io/mkell43/p2pool-monerod
           tags: |
             type=raw,value=latest
-            type=raw,value=${{ steps.p2pool.outputs.release }}
+            type=raw,value=${{ needs.retrieve-release.outputs.p2pool_release }}
             type=raw,value=${{ steps.timestampz.outputs.timestampz }}
           labels: |
             org.opencontainers.image.created ${{ steps.timestampz.outputs.timestampz }}
-            org.opencontainers.image.version ${{ steps.p2pool.outputs.release }}
+            org.opencontainers.image.version ${{ needs.retrieve-release.outputs.p2pool_release }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: "Authenticate Docker to Github Package Repository"
@@ -227,3 +227,23 @@ jobs:
         run: |
           echo -n "${{ secrets.COSIGN_PASS }}" | \
             cosign sign --key /tmp/cosign.key ghcr.io/mkell43/p2pool-monerod:${{ needs.retrieve-release.outputs.p2pool_release }}
+
+  scan-monerod:
+    needs: build-p2pool
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: p2pool-container
+    steps:
+      - name: Scan Image w/ Trivy
+        uses: aquasecurity/trivy-action@0.1.0
+        with:
+          image-ref: 'ghcr.io/mkell43/p2pool-monerod:latest'
+          format: 'template'
+          template: '@/contrib/sarif.tpl'
+          output: 'trivy-results.sarif'
+      - name: Upload Trivy Results
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: 'trivy-results.sarif'
