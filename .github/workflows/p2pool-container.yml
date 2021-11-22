@@ -87,6 +87,13 @@ jobs:
         working-directory: p2pool-container
     steps:
       - uses: actions/checkout@v2
+      - name: "Retrieve Release Directory Cache"
+        id: cache-release
+        uses: actions/cache@v2
+        with:
+          path: |
+            p2pool-${{steps.p2pool.outputs.release }}-linux-x64
+          key: p2pool@${{ steps.p2pool.outputs.release }}
       - name: Get Timestamp
         id: timestampz
         run: echo "::set-output timestampz=$(TZ='UTC' date +'%Y-%m-%dT%H:%M:%SZ')"
