@@ -94,66 +94,70 @@ jobs:
           path: |
             p2pool-${{ needs.retrieve-release.outputs.p2pool_release }}-linux-x64
           key: p2pool@${{ needs.retrieve-release.outputs.p2pool_release }}
-      - name: Get Timestamp
-        id: timestampz
-        run: echo "::set-output timestampz=$(TZ='UTC' date +'%Y-%m-%dT%H:%M:%SZ')"
-      - name: Set Container Metadata
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          images: ghcr.io/mkell43/p2pool
-          tags: |
-            type=raw,value=latest
-            type=raw,value=${{ steps.p2pool.outputs.release }}
-            type=raw,value=${{ steps.timestampz.outputs.timestampz }}
-          labels: |
-            org.opencontainers.image.created ${{ steps.timestampz.outputs.timestampz }}
-            org.opencontainers.image.version ${{ steps.p2pool.outputs.release }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: "Authenticate Docker to Github Package Repository"
-        uses: docker/login-action@v1.1.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GH_CONTAINER_REGISTRY_PAT }}
-      - name: "Build & Push Container Image"
-        uses: docker/build-push-action@v2.7.0
-        with:
-          context: ./p2pool-container
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=ghcr.io/mkell43/p2pool:buildcache
-          cache-to: type=registry,ref=ghcr.io/mkell43/p2pool:buildcache,mode=max
-      - name: "Dump Cosign Key To File"
+      - name: Testing
         run: |
-          echo "$COSIGN_KEY" > /tmp/cosign.key
-        env:
-          COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
-      - name: "Install Cosign"
-        uses: sigstore/cosign-installer@v1.2.0
-      - name: "Sign The Image"
-        run: |
-          echo -n "${{ secrets.COSIGN_PASS }}" | \
-            cosign sign --key /tmp/cosign.key ghcr.io/mkell43/p2pool:${{ needs.retrieve-release.outputs.p2pool_release }}
+          ls -l
+          ls -l ../
+  #     - name: Get Timestamp
+  #       id: timestampz
+  #       run: echo "::set-output timestampz=$(TZ='UTC' date +'%Y-%m-%dT%H:%M:%SZ')"
+  #     - name: Set Container Metadata
+  #       id: meta
+  #       uses: docker/metadata-action@v3
+  #       with:
+  #         images: ghcr.io/mkell43/p2pool
+  #         tags: |
+  #           type=raw,value=latest
+  #           type=raw,value=${{ steps.p2pool.outputs.release }}
+  #           type=raw,value=${{ steps.timestampz.outputs.timestampz }}
+  #         labels: |
+  #           org.opencontainers.image.created ${{ steps.timestampz.outputs.timestampz }}
+  #           org.opencontainers.image.version ${{ steps.p2pool.outputs.release }}
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v1
+  #     - name: "Authenticate Docker to Github Package Repository"
+  #       uses: docker/login-action@v1.1.0
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GH_CONTAINER_REGISTRY_PAT }}
+  #     - name: "Build & Push Container Image"
+  #       uses: docker/build-push-action@v2.7.0
+  #       with:
+  #         context: ./p2pool-container
+  #         push: true
+  #         tags: ${{ steps.meta.outputs.tags }}
+  #         labels: ${{ steps.meta.outputs.labels }}
+  #         cache-from: type=registry,ref=ghcr.io/mkell43/p2pool:buildcache
+  #         cache-to: type=registry,ref=ghcr.io/mkell43/p2pool:buildcache,mode=max
+  #     - name: "Dump Cosign Key To File"
+  #       run: |
+  #         echo "$COSIGN_KEY" > /tmp/cosign.key
+  #       env:
+  #         COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
+  #     - name: "Install Cosign"
+  #       uses: sigstore/cosign-installer@v1.2.0
+  #     - name: "Sign The Image"
+  #       run: |
+  #         echo -n "${{ secrets.COSIGN_PASS }}" | \
+  #           cosign sign --key /tmp/cosign.key ghcr.io/mkell43/p2pool:${{ needs.retrieve-release.outputs.p2pool_release }}
 
-  scan-p2pool:
-    needs: build-p2pool
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: p2pool-container
-    steps:
-      - name: Scan Image w/ Trivy
-        uses: aquasecurity/trivy-action@0.1.0
-        with:
-          image-ref: 'ghcr.io/mkell43/p2pool:latest'
-          format: 'template'
-          template: '@/contrib/sarif.tpl'
-          output: 'trivy-results.sarif'
-      - name: Upload Trivy Results
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: 'trivy-results.sarif'
+  # scan-p2pool:
+  #   needs: build-p2pool
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #       working-directory: p2pool-container
+  #   steps:
+  #     - name: Scan Image w/ Trivy
+  #       uses: aquasecurity/trivy-action@0.1.0
+  #       with:
+  #         image-ref: 'ghcr.io/mkell43/p2pool:latest'
+  #         format: 'template'
+  #         template: '@/contrib/sarif.tpl'
+  #         output: 'trivy-results.sarif'
+  #     - name: Upload Trivy Results
+  #       uses: github/codeql-action/upload-sarif@v1
+  #       with:
+  #         sarif_file: 'trivy-results.sarif'
