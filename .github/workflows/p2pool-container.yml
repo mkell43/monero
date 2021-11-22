@@ -63,6 +63,9 @@ jobs:
         with:
           path: ./p2pool-${{steps.p2pool.outputs.release }}-linux-x64/
           key: p2pool-${{ steps.p2pool.outputs.release }}
+      - name: "Testing"
+        run: |
+          ls -l
 
   lint-p2pool:
     runs-on: ubuntu-latest
