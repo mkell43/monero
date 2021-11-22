@@ -61,9 +61,8 @@ jobs:
         id: cache-release
         uses: actions/cache@v2
         with:
-          path: |
-            p2pool-${{steps.p2pool.outputs.release }}-linux-x64
-          key: p2pool@${{ steps.p2pool.outputs.release }}
+          path: ./p2pool-${{steps.p2pool.outputs.release }}-linux-x64
+          key: p2pool-${{ steps.p2pool.outputs.release }}
 
   lint-p2pool:
     runs-on: ubuntu-latest
@@ -91,9 +90,8 @@ jobs:
         id: cache-release
         uses: actions/cache@v2
         with:
-          path: |
-            p2pool-${{ needs.retrieve-release.outputs.p2pool_release }}-linux-x64
-          key: p2pool@${{ needs.retrieve-release.outputs.p2pool_release }}
+          path: ./p2pool-${{ needs.retrieve-release.outputs.p2pool_release }}-linux-x64
+          key: p2pool-${{ needs.retrieve-release.outputs.p2pool_release }}
       - name: Testing
         run: |
           ls -l
