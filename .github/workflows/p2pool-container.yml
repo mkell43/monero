@@ -155,3 +155,75 @@ jobs:
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: 'trivy-results.sarif'
+
+  lint-monerod:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: p2pool-container
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Lint Dockerfile"
+        id: hadolint
+        uses: hadolint/hadolint-action@v1.6.0
+        with:
+          dockerfile: p2pool-container/monerod.Dockerfile
+
+  build-monerod:
+    needs: ["retrieve-release", "lint-monerod"]
+    runs-on: ubuntu-latest 
+    defaults:
+      run:
+        shell: bash
+        working-directory: p2pool-container
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Retrieve Release Directory Cache"
+        id: cache-release
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/monero/monero/p2pool-container/p2pool-${{ needs.retrieve-release.outputs.p2pool_release }}-linux-x64
+          key: p2pool-${{ github.run_id }}
+      - name: Get Timestamp
+        id: timestampz
+        run: echo "::set-output timestampz=$(TZ='UTC' date +'%Y-%m-%dT%H:%M:%SZ')"
+      - name: Set Container Metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ghcr.io/mkell43/p2pool-monerod
+          tags: |
+            type=raw,value=latest
+            type=raw,value=${{ steps.p2pool.outputs.release }}
+            type=raw,value=${{ steps.timestampz.outputs.timestampz }}
+          labels: |
+            org.opencontainers.image.created ${{ steps.timestampz.outputs.timestampz }}
+            org.opencontainers.image.version ${{ steps.p2pool.outputs.release }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: "Authenticate Docker to Github Package Repository"
+        uses: docker/login-action@v1.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_CONTAINER_REGISTRY_PAT }}
+      - name: "Build & Push Container Image"
+        uses: docker/build-push-action@v2.7.0
+        with:
+          context: ./p2pool-container
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=ghcr.io/mkell43/p2pool-monerod:buildcache
+          cache-to: type=registry,ref=ghcr.io/mkell43/p2pool-monerod:buildcache,mode=max
+      - name: "Dump Cosign Key To File"
+        run: |
+          echo "$COSIGN_KEY" > /tmp/cosign.key
+        env:
+          COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
+      - name: "Install Cosign"
+        uses: sigstore/cosign-installer@v1.2.0
+      - name: "Sign The Image"
+        run: |
+          echo -n "${{ secrets.COSIGN_PASS }}" | \
+            cosign sign --key /tmp/cosign.key ghcr.io/mkell43/p2pool-monerod:${{ needs.retrieve-release.outputs.p2pool_release }}
