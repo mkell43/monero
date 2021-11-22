@@ -39,7 +39,7 @@ jobs:
           repo: p2pool
           excludes: prelease, draft
       - uses: actions/checkout@v2
-      - name: "Retrieve Monero Hashes File"
+      - name: "Retrieve P2pool Hashes File"
         run: |
           curl -sLO "https://github.com/SChernykh/p2pool/releases/download/$P2POOL_TAG/sha256sums.txt.asc"
         env:
