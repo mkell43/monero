@@ -118,7 +118,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: monerod-container
+        working-directory: p2pool-container
     steps:
       - name: Scan Image w/ Trivy
         uses: aquasecurity/trivy-action@master
