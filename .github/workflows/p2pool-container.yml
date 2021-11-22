@@ -11,26 +11,15 @@ on:
       - '.github/workflows/p2pool-container.yml'
 
 jobs:
-  lint-p2pool:
+  retrieve-release:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: p2pool-container
+    outputs:
+      p2pool_release: ${{ step.p2pool.outputs.release }}
     steps:
       - uses: actions/checkout@v2
-      - name: "Lint Dockerfile"
-        id: hadolint
-        uses: hadolint/hadolint-action@v1.6.0
-        with:
-          dockerfile: p2pool-container/Dockerfile
-  build-p2pool:
-    needs: lint-p2pool
-    runs-on: ubuntu-latest 
-    defaults:
-      run:
-        shell: bash
-        working-directory: p2pool-container
-    steps:
       - name: "Retrieve Latest P2pool Release Tag"
         id: p2pool
         uses: pozetroninc/github-action-get-latest-release@master
@@ -38,7 +27,6 @@ jobs:
           owner: SChernykh
           repo: p2pool
           excludes: prelease, draft
-      - uses: actions/checkout@v2
       - name: "Retrieve P2pool Hashes File"
         run: |
           curl -sLO "https://github.com/SChernykh/p2pool/releases/download/$P2POOL_TAG/sha256sums.txt.asc"
@@ -69,6 +57,36 @@ jobs:
           tar -xzf "p2pool-$P2POOL_TAG-linux-x64.tar.gz"
         env:
           P2POOL_TAG: "${{ steps.p2pool.outputs.release }}"
+      - name: "Cache Release Directory"
+        id: cache-release
+        uses: actions/cache@v2
+        with:
+          path: |
+            p2pool-${{steps.p2pool.outputs.release }}-linux-x64
+          key: p2pool@${{ steps.p2pool.outputs.release }}
+
+  lint-p2pool:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: p2pool-container
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Lint Dockerfile"
+        id: hadolint
+        uses: hadolint/hadolint-action@v1.6.0
+        with:
+          dockerfile: p2pool-container/Dockerfile
+
+  build-p2pool:
+    needs: ["retrieve-release", "lint-p2pool"]
+    runs-on: ubuntu-latest 
+    defaults:
+      run:
+        shell: bash
+        working-directory: p2pool-container
+    steps:
+      - uses: actions/checkout@v2
       - name: Get Timestamp
         id: timestampz
         run: echo "::set-output timestampz=$(TZ='UTC' date +'%Y-%m-%dT%H:%M:%SZ')"
@@ -111,7 +129,8 @@ jobs:
       - name: "Sign The Image"
         run: |
           echo -n "${{ secrets.COSIGN_PASS }}" | \
-            cosign sign --key /tmp/cosign.key ghcr.io/mkell43/p2pool:${{ steps.p2pool.outputs.release }}
+            cosign sign --key /tmp/cosign.key ghcr.io/mkell43/p2pool:${{ needs.retrieve-release.outputs.p2pool_release }}
+
   scan-p2pool:
     needs: build-p2pool
     runs-on: ubuntu-latest
