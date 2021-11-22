@@ -95,7 +95,7 @@ jobs:
         id: cache-release
         uses: actions/cache@v2
         with:
-          path: /home/runner/work/monero/monero/p2pool-container/p2pool-${{steps.p2pool.outputs.release }}-linux-x64
+          path: /home/runner/work/monero/monero/p2pool-container/p2pool-${{ needs.retrieve-release.outputs.p2pool_release }}-linux-x64
           key: p2pool-${{ github.run_id }}
       - name: Testing
         run: |
