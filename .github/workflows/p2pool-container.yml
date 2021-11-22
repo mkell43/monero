@@ -61,7 +61,7 @@ jobs:
         id: cache-release
         uses: actions/cache@v2
         with:
-          path: ./p2pool-${{steps.p2pool.outputs.release }}-linux-x64
+          path: ./p2pool-${{steps.p2pool.outputs.release }}-linux-x64/
           key: p2pool-${{ steps.p2pool.outputs.release }}
 
   lint-p2pool:
@@ -90,12 +90,13 @@ jobs:
         id: cache-release
         uses: actions/cache@v2
         with:
-          path: ./p2pool-${{ needs.retrieve-release.outputs.p2pool_release }}-linux-x64
+          path: ./p2pool-${{ needs.retrieve-release.outputs.p2pool_release }}-linux-x64/
           key: p2pool-${{ needs.retrieve-release.outputs.p2pool_release }}
       - name: Testing
         run: |
           ls -l
           ls -l ../
+          stat 
   #     - name: Get Timestamp
   #       id: timestampz
   #       run: echo "::set-output timestampz=$(TZ='UTC' date +'%Y-%m-%dT%H:%M:%SZ')"
