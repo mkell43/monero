@@ -17,7 +17,7 @@ jobs:
       run:
         working-directory: p2pool-container
     outputs:
-      p2pool_release: ${{ step.p2pool.outputs.release }}
+      p2pool_release: ${{ steps.p2pool.outputs.release }}
     steps:
       - uses: actions/checkout@v2
       - name: "Retrieve Latest P2pool Release Tag"
