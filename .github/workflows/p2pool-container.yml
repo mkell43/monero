@@ -229,7 +229,7 @@ jobs:
             cosign sign --key /tmp/cosign.key ghcr.io/mkell43/p2pool-monerod:${{ needs.retrieve-release.outputs.p2pool_release }}
 
   scan-monerod:
-    needs: build-p2pool
+    needs: build-monerod
     runs-on: ubuntu-latest
     defaults:
       run:
