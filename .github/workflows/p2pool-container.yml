@@ -121,7 +121,7 @@ jobs:
         working-directory: p2pool-container
     steps:
       - name: Scan Image w/ Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.1.0
         with:
           image-ref: 'ghcr.io/mkell43/p2pool:latest'
           format: 'template'
